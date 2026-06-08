@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Mapa de Venezuela">
+  <rect width="640" height="400" fill="#eef2ff" />
+  <path d="M180,70 C210,40 260,45 290,80 C320,115 350,120 380,95 C410,70 430,90 450,120 C470,150 495,170 520,180 C540,190 530,220 520,240 C510,260 490,280 470,290 C450,300 420,310 395,300 C370,290 350,270 330,250 C310,230 290,210 270,190 C250,170 230,150 210,140 C190,130 170,120 150,110 C130,100 150,80 180,70 Z" fill="#38bdf8" stroke="#0284c7" stroke-width="5" />
+  <circle cx="263" cy="175" r="16" fill="#f97316" />
+  <text x="26" y="360" font-size="24" fill="#0f172a" font-family="sans-serif">Venezuela</text>
+</svg>

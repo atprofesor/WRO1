@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-label="Mapa Mundi con Venezuela y Argentina destacados">
+  <rect width="800" height="520" fill="#e2e8f0" />
+  <rect x="40" y="40" width="720" height="440" rx="32" fill="#ffffff" />
+  <circle cx="430" cy="210" r="76" fill="#93c5fd" opacity="0.4" />
+  <circle cx="260" cy="165" r="64" fill="#fca5a5" opacity="0.6" />
+  <text x="310" y="220" font-size="28" fill="#1e293b" font-family="sans-serif">Argentina</text>
+  <text x="220" y="160" font-size="28" fill="#1e293b" font-family="sans-serif">Venezuela</text>
+  <text x="60" y="500" font-size="24" fill="#334155" font-family="sans-serif">CyberPuppets - Danza mundial</text>
+</svg>

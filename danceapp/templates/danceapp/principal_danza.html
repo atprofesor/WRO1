@@ -1,0 +1,20 @@
+{% extends 'danceapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="dance-stage">
+    <div class="stage-left">
+        <h2>{{ dance.name }} - {{ dance.country }}</h2>
+        <img src="{% static dance.map_image %}" alt="Mapa de {{ dance.country }} para {{ dance.name }}">
+    </div>
+    <div class="stage-right">
+        <h3>Reseña histórica</h3>
+        <p>{{ dance.historical_review }}</p>
+    </div>
+</section>
+
+<div class="page-actions">
+    <a class="button secondary" href="{% url 'home' %}">Volver</a>
+    <a class="button primary" href="{% url 'dance_stage' dance.slug 'fotos' %}">Siguiente</a>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'danceapp/base.html' %}
+
+{% block content %}
+<section class="dance-stage video-section">
+    <h2>Video de {{ dance.name }}</h2>
+    <div class="video-wrapper">
+        <iframe
+            src="{{ dance.video_url }}"
+            title="Video de {{ dance.name }}"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+        </iframe>
+    </div>
+</section>
+
+<div class="page-actions">
+    <a class="button secondary" href="{% url 'dance_stage' dance.slug 'fotos' %}">Volver</a>
+    <a class="button primary" href="{% url 'home' %}">Finalizar</a>
+</div>
+{% endblock %}

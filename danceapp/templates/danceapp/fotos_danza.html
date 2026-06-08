@@ -1,0 +1,23 @@
+{% extends 'danceapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="dance-stage dance-gallery-section">
+    <div class="gallery-title">
+        <h2>Fotos de {{ dance.name }}</h2>
+        <p>Collage de parejas bailando en la escena cultural.</p>
+    </div>
+    <div class="gallery-grid">
+        {% for image in dance.collage_images %}
+            <figure class="gallery-item">
+                <img src="{% static image %}" alt="Imagen de {{ dance.name }} {{ forloop.counter }}">
+            </figure>
+        {% endfor %}
+    </div>
+</section>
+
+<div class="page-actions">
+    <a class="button secondary" href="{% url 'dance_stage' dance.slug 'principal' %}">Volver</a>
+    <a class="button primary" href="{% url 'dance_stage' dance.slug 'video' %}">Siguiente</a>
+</div>
+{% endblock %}

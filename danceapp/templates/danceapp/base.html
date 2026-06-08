@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberPuppets - Voz y Danzas Culturales</title>
+    <link rel="stylesheet" href="{% static 'danceapp/css/styles.css' %}">
+</head>
+<body data-dance="{{ dance.slug|default:'' }}" data-stage="{{ stage|default:'' }}">
+    <header class="site-header">
+        <div class="header-content">
+            <h1>CyberPuppets</h1>
+            <p>Navega por danzas culturales usando voz o clic.</p>
+        </div>
+    </header>
+
+    <main class="page-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <p>Comandos de voz disponibles: <strong>tango, joropo, volver, siguiente, home, finalizar</strong>.</p>
+        <div id="voice-status" class="voice-status">Iniciando reconocimiento de voz...</div>
+    </footer>
+
+    <script src="{% static 'danceapp/js/voice.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof initVoiceRecognition === 'function') {
+                initVoiceRecognition();
+            }
+        });
+    </script>
+</body>
+</html>

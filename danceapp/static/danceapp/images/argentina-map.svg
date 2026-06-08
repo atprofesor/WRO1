@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Mapa de Argentina">
+  <rect width="640" height="400" fill="#f8fafc" />
+  <path d="M150,90 C190,60 250,65 280,95 C310,125 330,150 350,180 C370,210 390,230 410,255 C430,280 450,295 470,305 C490,315 510,325 530,320 C550,315 560,300 560,280 C560,260 550,240 540,220 C530,200 520,180 510,160 C500,140 485,120 470,100 C455,80 430,65 410,70 C390,75 370,90 350,105 C330,120 310,140 290,150 C270,160 240,165 210,155 C180,145 160,115 150,90 Z" fill="#7dd3fc" stroke="#0284c7" stroke-width="5" />
+  <circle cx="455" cy="190" r="16" fill="#facc15" />
+  <text x="30" y="365" font-size="24" fill="#0f172a" font-family="sans-serif">Argentina</text>
+</svg>

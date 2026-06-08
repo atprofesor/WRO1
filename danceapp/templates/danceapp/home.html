@@ -1,0 +1,25 @@
+{% extends 'danceapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="home-intro">
+    <div class="presentation">
+        <p><strong>Equipo:</strong> Jhean Brito, Adiani Rodriguez, Cesar Centeno</p>
+        <p><strong>Colegio:</strong> Doña Menca de Leoni</p>
+        <p><strong>Proyecto:</strong> CyberPuppets</p>
+    </div>
+    <div class="hero-image">
+        <img src="{% static 'danceapp/images/map-mundi.svg' %}" alt="Mapa Mundi con Venezuela y Argentina destacados">
+    </div>
+</section>
+
+<section class="dance-list">
+    <h2>Danzas disponibles</h2>
+    <div class="dance-buttons">
+        {% for dance in dances %}
+            <a class="dance-button" href="{% url 'dance_stage' dance.slug 'principal' %}">{{ dance.name }}</a>
+        {% endfor %}
+    </div>
+    <p class="voice-hint">Di <strong>tango</strong> o <strong>joropo</strong> para navegar directamente.</p>
+</section>
+{% endblock %}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 360" role="img" aria-label="Ilustración de pareja bailando Tango 1">
+  <rect width="520" height="360" fill="#f8fafc" />
+  <path d="M120,250 C165,200 215,160 280,150 C345,140 395,170 430,220 C465,270 450,315 410,330 C370,345 320,345 280,330 C240,315 200,290 160,280 C120,270 110,260 120,250 Z" fill="#0f172a" opacity="0.55" />
+  <text x="38" y="240" font-size="28" fill="#1f2937" font-family="sans-serif">Tango</text>
+  <text x="38" y="270" font-size="18" fill="#475569" font-family="sans-serif">Pasión y abrazo porteño.</text>
+</svg>
