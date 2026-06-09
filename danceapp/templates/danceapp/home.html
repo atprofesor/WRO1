@@ -2,24 +2,34 @@
 {% load static %}
 
 {% block content %}
-<section class="home-intro">
-    <div class="presentation">
-        <p><strong>Equipo:</strong> Jhean Brito, Adiani Rodriguez, Cesar Centeno</p>
-        <p><strong>Colegio:</strong> Doña Menca de Leoni</p>
-        <p><strong>Proyecto:</strong> CyberPuppets</p>
-    </div>
+<section class="home-map-section">
     <div class="hero-image">
+        <h3 class="map-title">Repertorio de Danzas y Bailes Tradicionales</h3>
         <img src="{% static 'danceapp/images/map-mundi.svg' %}" alt="Mapa Mundi con Venezuela y Argentina destacados">
     </div>
 </section>
 
-<section class="dance-list">
-    <h2>Danzas disponibles</h2>
-    <div class="dance-buttons">
+<section class="dance-list-compact">
+    <div class="dance-buttons-row">
         {% for dance in dances %}
-            <a class="dance-button" href="{% url 'dance_stage' dance.slug 'principal' %}">{{ dance.name }}</a>
+            <a class="dance-button-country" href="{% url 'dance_stage' dance.slug 'principal' %}">
+                {% if 'joropo' in dance.slug or 'venezuela' in dance.slug %}
+                    <span class="country-badge ven">Venezuela</span>
+                {% elif 'tango' in dance.slug or 'argentina' in dance.slug %}
+                    <span class="country-badge arg">Argentina</span>
+                {% else %}
+                    <span class="country-badge gen">Cultura</span>
+                {% endif %}
+                <span class="dance-name">{{ dance.name }}</span>
+            </a>
         {% endfor %}
     </div>
-    <p class="voice-hint">Di <strong>tango</strong> o <strong>joropo</strong> para navegar directamente.</p>
+    <p class="voice-hint-compact">Di <strong>tango</strong> o <strong>joropo</strong> para navegar directamente.</p>
 </section>
+
+<footer class="team-presentation-compact">
+    <p><strong>Equipo MENCA BOT SENIOR:</strong> Jhean Brito, Adiani Rodriguez, Cesar Centeno</p>
+    <p><strong>Colegio:</strong> Doña Menca de Leoni</p>
+    <p><strong>Proyecto:</strong> CyberPuppets</p>
+</footer>
 {% endblock %}

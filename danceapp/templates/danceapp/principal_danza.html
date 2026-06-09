@@ -2,19 +2,132 @@
 {% load static %}
 
 {% block content %}
-<section class="dance-stage">
-    <div class="stage-left">
-        <h2>{{ dance.name }} - {{ dance.country }}</h2>
-        <img src="{% static dance.map_image %}" alt="Mapa de {{ dance.country }} para {{ dance.name }}">
+{% if 'joropo' in dance.slug or 'venezuela' in dance.slug %}
+    <audio id="tts-audio-player" src="{% static 'danceapp/audio/joropo_speech.mp3' %}"></audio>
+{% endif %}
+
+<section class="dance-stage-dashboard">
+    <div class="stage-left-card">
+        <div class="dance-header-inline">
+            <h2>{{ dance.name }}</h2>
+            <span class="country-pill {% if 'joropo' in dance.slug or 'venezuela' in dance.slug %}pill-ven{% else %}pill-arg{% endif %}">
+                {{ dance.country }}
+            </span>
+            
+            {% if 'joropo' in dance.slug or 'venezuela' in dance.slug %}
+            <button id="audio-control-btn" class="audio-pulse-button" onclick="toggleAudio()" title="Pausar/Reproducir Audio">
+                🔊 Audio-Guía
+            </button>
+            {% endif %}
+        </div>
+        
+        <div class="region-tags-container">
+            <span class="region-label">Focos Culturales:</span>
+            {% if 'joropo' in dance.slug or 'venezuela' in dance.slug %}
+                <span class="region-tag">Los Llanos</span>
+                <span class="region-tag">Región Central</span>
+                <span class="region-tag">Eje Oriental</span>
+            {% else %}
+                <span class="region-tag">Buenos Aires</span>
+                <span class="region-tag">Río de la Plata</span>
+            {% endif %}
+        </div>
+
+        <div class="map-dashboard-wrapper">
+            <img src="{% static dance.map_image %}" alt="Mapa oficial de {{ dance.country }}" class="img-map-dashboard">
+        </div>
+
+        {% if 'joropo' in dance.slug or 'venezuela' in dance.slug %}
+        <div class="instruments-dashboard-wrapper">
+            <span class="instruments-title-label">Ensamble Instrumental Típico:</span>
+            <img src="{% static 'danceapp/images/inst_joropo.svg' %}" alt="Instrumentos tradicionales del Joropo" class="img-instruments-dashboard">
+        </div>
+        {% endif %}
     </div>
-    <div class="stage-right">
-        <h3>Reseña histórica</h3>
-        <p>{{ dance.historical_review }}</p>
+
+    <div class="stage-right-card">
+        <div class="review-text-section">
+            <h3>Reseña Histórica</h3>
+            <p class="historical-text-dashboard">
+                {% if 'joropo' in dance.slug or 'venezuela' in dance.slug %}
+                    El Joropo es la máxima expresión del mestizaje cultural venezolano, consolidado en el siglo XVIII a partir de la fusión del fandango español, las melodías indígenas y los polirritmos africanos. Originalmente, la palabra significaba "fiesta o jolgorio campesino", evolucionando hasta convertirse en la identidad dancística nacional. Su coreografía representa un elegante juego de cortejo donde el hombre ejecuta un zapateo recio y enérgico para asombrar a la mujer, mientras ella responde con un sutil y coordinado escobillao. Esta manifestación trasciende las fronteras llaneras para diversificarse en variantes como el joropo central y el oriental, cada uno con variantes instrumentales y dancísticas únicas. Debido a su incalculable valor identitario, fue declarado Patrimonio Cultural de la Nación, consolidándose como el latido artístico de Venezuela ante el mundo.
+                {% else %}
+                    {{ dance.historical_review }}
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="cultural-spec-box">
+            <h4>Especificaciones Tradicionales</h4>
+            <div class="spec-grid">
+                <div class="spec-item">
+                    <span class="spec-title text-large-spec">Métrica Musical</span>
+                    <span class="spec-value text-xlarge-value">{% if 'joropo' in dance.slug %}3/4 y 6/8 alternado{% else %}2/4 o 4/4{% endif %}</span>
+                </div>
+                <div class="spec-item">
+                    <span class="spec-title text-large-spec">Instrumentación</span>
+                    <span class="spec-value text-xlarge-value">{% if 'joropo' in dance.slug %}Arpa, Cuatro y Maracas{% else %}Bandoneón, Piano y Violín{% endif %}</span>
+                </div>
+                <div class="spec-item">
+                    <span class="spec-title text-large-spec">Pasos Clave</span>
+                    <span class="spec-value text-xlarge-value">{% if 'joropo' in dance.slug %}Zapateo y Escobillao{% else %}Caminata y Corte{% endif %}</span>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
-<div class="page-actions">
+<div class="page-actions-dashboard">
     <a class="button secondary" href="{% url 'home' %}">Volver</a>
     <a class="button primary" href="{% url 'dance_stage' dance.slug 'fotos' %}">Siguiente</a>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const audio = document.getElementById("tts-audio-player");
+        const btn = document.getElementById("audio-control-btn");
+        
+        if (!audio) return;
+
+        function playAudio() {
+            audio.play().then(function() {
+                if (btn) {
+                    btn.classList.add("playing");
+                    btn.innerText = "⏸ Pausar Guía";
+                }
+            }).catch(function(error) {
+                if (btn) {
+                    btn.innerText = "🔊 Escuchar Guía";
+                }
+            });
+        }
+
+        playAudio();
+
+        document.body.addEventListener("click", function() {
+            if (audio.paused && btn && !btn.classList.contains("user-paused")) {
+                playAudio();
+            }
+        }, { once: true });
+    });
+
+    function toggleAudio() {
+        const audio = document.getElementById("tts-audio-player");
+        const btn = document.getElementById("audio-control-btn");
+        
+        if (!audio || !btn) return;
+
+        if (audio.paused) {
+            audio.play();
+            btn.classList.add("playing");
+            btn.classList.remove("user-paused");
+            btn.innerText = "⏸ Pausar Guía";
+        } else {
+            audio.pause();
+            btn.classList.add("user-paused");
+            btn.classList.remove("playing");
+            btn.innerText = "🔊 Escuchar Guía";
+        }
+    }
+</script>
 {% endblock %}
