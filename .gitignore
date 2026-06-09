@@ -1,0 +1,68 @@
+# Entornos virtuales
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Archivos de logs y bases de datos
+*.log
+*.sql
+*.sqlite
+*.db
+
+# Variables de entorno y archivos de configuración local
+.env
+.env.local
+.env.*.local
+*.local
+
+# Archivos de pruebas y cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Archivos de paquetes
+*.pyc
+*.pyo
+*.pyd
+
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+media/
+
+# Flask
+instance/
+.webassets-cache
