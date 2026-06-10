@@ -138,44 +138,158 @@
 </section>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // --- SISTEMA DE VOZ IA PARA NAVEGACIÓN DE GALERÍA (MANTENIDO INTACTO) ---
-        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    (function() {
+        'use strict';
         
-        if (window.SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'es-ES';
-            recognition.continuous = true;
-            recognition.interimResults = false;
-
-            recognition.onresult = function(event) {
-                const resultIndex = event.resultIndex;
-                const command = event.results[resultIndex][0].transcript.toLowerCase().trim();
-                console.log("Palabra capturada en Galería:", command);
-
-                if (command.includes("volver")) {
-                    const btnVolver = document.getElementById("btn-volver");
-                    if (btnVolver) btnVolver.click();
-                } 
-                else if (command.includes("siguiente")) {
-                    const btnSiguiente = document.getElementById("btn-siguiente");
-                    if (btnSiguiente) btnSiguiente.click();
+        // Obtener referencias a los botones
+        const btnVolver = document.getElementById('btn-volver');
+        const btnSiguiente = document.getElementById('btn-siguiente');
+        
+        // Variable para controlar si ya configuramos el interceptor
+        if (window.galleryVoiceInterceptorActive) {
+            return; // Ya está configurado
+        }
+        
+        window.galleryVoiceInterceptorActive = true;
+        
+        // Función para mostrar feedback en el status
+        function showVoiceFeedback(message, isError = false, isTemp = false) {
+            const statusDiv = document.getElementById('voice-status');
+            if (statusDiv) {
+                const originalText = statusDiv.textContent;
+                statusDiv.textContent = message;
+                if (isError) {
+                    statusDiv.style.backgroundColor = '#f44336';
+                } else {
+                    statusDiv.style.backgroundColor = '#ff9800';
+                }
+                
+                if (isTemp) {
+                    setTimeout(() => {
+                        if (statusDiv && statusDiv.textContent === message) {
+                            statusDiv.textContent = originalText;
+                            statusDiv.style.backgroundColor = '';
+                        }
+                    }, 2000);
+                }
+            }
+        }
+        
+        // Sobrescribir temporalmente el comportamiento de navegación por voz
+        // Guardar la función original de voice.js si existe
+        const originalBuildNavigationUrl = window.buildNavigationUrl;
+        const originalParseCommand = window.parseCommand;
+        
+        // Interceptar comandos específicos para la galería
+        window.processGalleryCommand = function(command) {
+            console.log("Galería procesando comando:", command);
+            
+            if (command.includes('volver') || command.includes('atrás') || command.includes('regresar')) {
+                showVoiceFeedback('🎤 Comando "Volver" detectado', false, true);
+                if (btnVolver) {
+                    btnVolver.style.transform = 'scale(0.95)';
+                    setTimeout(() => { if(btnVolver) btnVolver.style.transform = ''; }, 200);
+                    setTimeout(() => { btnVolver.click(); }, 100);
+                }
+                return true;
+            }
+            else if (command.includes('siguiente') || command.includes('adelante') || command.includes('continuar')) {
+                showVoiceFeedback('🎤 Comando "Siguiente" detectado', false, true);
+                if (btnSiguiente) {
+                    btnSiguiente.style.transform = 'scale(0.95)';
+                    setTimeout(() => { if(btnSiguiente) btnSiguiente.style.transform = ''; }, 200);
+                    setTimeout(() => { btnSiguiente.click(); }, 100);
+                }
+                return true;
+            }
+            return false;
+        };
+        
+        // Interceptar el evento de resultado del reconocimiento global
+        // Escuchar eventos personalizados o sobrescribir el handler
+        
+        // Método 1: Crear un MutationObserver para detectar cambios en el DOM y
+        // agregar un listener al sistema de voz existente
+        
+        // Método 2: Sobrescribir la función de parseCommand temporalmente
+        if (typeof window.parseCommand === 'function') {
+            const originalParseCommandFn = window.parseCommand;
+            window.parseCommand = function(text) {
+                // Primero intentar procesar en galería
+                if (window.processGalleryCommand && window.processGalleryCommand(text)) {
+                    return null; // Ya se procesó, no hacer nada más
+                }
+                // Si no, usar la original
+                return originalParseCommandFn(text);
+            };
+            console.log("Galería: Interceptor de comandos de voz activado");
+        } else {
+            // Si voice.js no ha cargado, esperar a que cargue
+            console.log("Galería: Esperando a que cargue voice.js...");
+            
+            // Esperar a que se cargue el sistema de voz global
+            const checkVoiceJs = setInterval(() => {
+                if (typeof window.parseCommand === 'function') {
+                    clearInterval(checkVoiceJs);
+                    const originalParseCommandFn = window.parseCommand;
+                    window.parseCommand = function(text) {
+                        if (window.processGalleryCommand && window.processGalleryCommand(text)) {
+                            return null;
+                        }
+                        return originalParseCommandFn(text);
+                    };
+                    console.log("Galería: Interceptor de comandos de voz activado (tardío)");
+                }
+            }, 100);
+            
+            // Timeout por si nunca carga
+            setTimeout(() => {
+                clearInterval(checkVoiceJs);
+            }, 5000);
+        }
+        
+        // También interceptar el evento onresult de recognition si es posible
+        // Esto es más agresivo pero funciona como respaldo
+        setTimeout(() => {
+            // Buscar la instancia de recognition en window
+            if (window.activeRecognition) {
+                console.log("Galería: Instancia de reconocimiento encontrada");
+                const originalOnResult = window.activeRecognition.onresult;
+                if (originalOnResult) {
+                    window.activeRecognition.onresult = function(event) {
+                        const resultIndex = event.resultIndex;
+                        const transcript = event.results[resultIndex][0].transcript.toLowerCase().trim();
+                        
+                        // Procesar en galería primero
+                        if (window.processGalleryCommand && window.processGalleryCommand(transcript)) {
+                            return; // Ya se manejó
+                        }
+                        
+                        // Si no, llamar al original
+                        if (originalOnResult) {
+                            originalOnResult(event);
+                        }
+                    };
+                    console.log("Galería: Handler de resultados interceptado");
+                }
+            }
+        }, 500);
+        
+        // Feedback visual de que la galería está lista para comandos de voz
+        const statusDiv = document.getElementById('voice-status');
+        if (statusDiv) {
+            const updateStatus = () => {
+                if (statusDiv.textContent.includes('Escuchando') || statusDiv.textContent.includes('Reconocimiento')) {
+                    // Añadir indicación de que los comandos de galería están activos
+                    if (!statusDiv.textContent.includes('(Volver/Siguiente)')) {
+                        statusDiv.textContent = statusDiv.textContent + ' (Di "Volver" o "Siguiente")';
+                    }
                 }
             };
-
-            recognition.onend = function() {
-                setTimeout(() => {
-                    try {
-                        recognition.start();
-                    } catch(e) {
-                        console.log("Reinicio de micrófono amortiguado en Galería.");
-                    }
-                }, 300);
-            };
-
-            recognition.start();
-            console.log("IA auditiva activa en Galería. Escuchando: 'Volver' o 'Siguiente'.");
+            setTimeout(updateStatus, 1000);
         }
-    });
+        
+        console.log("Galería: Sistema de voz listo - Comandos: Volver, Siguiente");
+    })();
 </script>
 {% endblock %}

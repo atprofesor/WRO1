@@ -12,7 +12,9 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    (function() {
+        'use strict';
+        
         const video = document.getElementById('joropo-video');
         let fullScreenActivated = false;
         
@@ -41,14 +43,109 @@
             }
         }
         
-        // Intentar reproducir el video con sonido
-        // Los navegadores modernos requieren interacción del usuario para autoplay con sonido
+        // Función para volver a la página anterior
+        function volverAtras() {
+            const isFullScreen = document.fullscreenElement || 
+                                document.webkitFullscreenElement || 
+                                document.msFullscreenElement;
+            
+            if (isFullScreen) {
+                salirFullScreen();
+                setTimeout(() => {
+                    window.history.back();
+                }, 300);
+            } else {
+                window.history.back();
+            }
+        }
+        
+        // ============================================
+        // SISTEMA DE VOZ MEJORADO PARA VIDEO_DANZA
+        // ============================================
+        
+        // Variable para controlar si ya configuramos el interceptor
+        if (window.videoVoiceInterceptorActive) {
+            return;
+        }
+        
+        window.videoVoiceInterceptorActive = true;
+        
+        // Función para mostrar feedback en el status (versión simplificada para video)
+        function showVoiceFeedback(message) {
+            const statusDiv = document.getElementById('voice-status');
+            if (statusDiv) {
+                const originalText = statusDiv.textContent;
+                statusDiv.textContent = message;
+                statusDiv.style.backgroundColor = '#ff9800';
+                setTimeout(() => {
+                    if (statusDiv && statusDiv.textContent === message) {
+                        statusDiv.textContent = originalText;
+                        statusDiv.style.backgroundColor = '';
+                    }
+                }, 2000);
+            }
+        }
+        
+        // Procesar comandos de voz para video_danza
+        window.processVideoCommand = function(command) {
+            console.log("Video_Danza procesando comando:", command);
+            
+            // Comandos para VOLVER/ATRÁS (salir del video)
+            if (command.includes('volver') || command.includes('atrás') || command.includes('regresar')) {
+                showVoiceFeedback('🎤 Comando "Volver" detectado - Saliendo del video');
+                volverAtras();
+                return true;
+            }
+            // Para el video, el comando "siguiente" no aplica, pero lo registramos
+            else if (command.includes('siguiente') || command.includes('adelante') || command.includes('continuar')) {
+                showVoiceFeedback('🎤 Comando "Siguiente" detectado - El video debe terminar primero');
+                // Opcional: reproducir un sonido o mensaje indicando que no es posible
+                return true;
+            }
+            return false;
+        };
+        
+        // Interceptar el sistema de voz global
+        if (typeof window.parseCommand === 'function') {
+            const originalParseCommandFn = window.parseCommand;
+            window.parseCommand = function(text) {
+                // Primero intentar procesar en video_danza
+                if (window.processVideoCommand && window.processVideoCommand(text)) {
+                    return null;
+                }
+                // Si no, usar la original
+                return originalParseCommandFn(text);
+            };
+            console.log("Video_Danza: Interceptor de comandos de voz activado");
+        } else {
+            // Esperar a que cargue voice.js
+            const checkVoiceJs = setInterval(() => {
+                if (typeof window.parseCommand === 'function') {
+                    clearInterval(checkVoiceJs);
+                    const originalParseCommandFn = window.parseCommand;
+                    window.parseCommand = function(text) {
+                        if (window.processVideoCommand && window.processVideoCommand(text)) {
+                            return null;
+                        }
+                        return originalParseCommandFn(text);
+                    };
+                    console.log("Video_Danza: Interceptor de comandos de voz activado (tardío)");
+                }
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(checkVoiceJs);
+            }, 5000);
+        }
+        
+        // ============================================
+        // REPRODUCCIÓN DE VIDEO Y FULLSCREEN
+        // ============================================
         
         // Mostrar un mensaje inicial para que el usuario interactúe
         function mostrarBienvenida() {
             const container = document.getElementById('video-container');
             
-            // Verificar si ya existe un overlay
             if (document.getElementById('video-overlay')) return;
             
             const overlay = document.createElement('div');
@@ -65,9 +162,8 @@
             
             const btn = document.getElementById('play-fullscreen-btn');
             btn.addEventListener('click', function() {
-                // Reproducir el video con sonido
-                video.muted = false; // Asegurar que no está silenciado
-                video.volume = 1.0;  // Volumen al máximo
+                video.muted = false;
+                video.volume = 1.0;
                 
                 const playPromise = video.play();
                 
@@ -85,8 +181,7 @@
             });
         }
         
-        // Verificar si el autoplay con sonido es posible
-        // Intentar reproducir automáticamente (muchos navegadores lo bloquearán)
+        // Intentar reproducción automática
         video.muted = false;
         video.volume = 1.0;
         
@@ -95,13 +190,11 @@
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 console.log('Autoplay con sonido exitoso');
-                // Entrar en full screen después de que empiece
                 setTimeout(() => {
                     entrarFullScreen(video);
                 }, 100);
             }).catch(error => {
                 console.log('Autoplay con sonido bloqueado, mostrando botón de inicio');
-                // El navegador bloqueó el autoplay con sonido
                 mostrarBienvenida();
             });
         }
@@ -113,7 +206,6 @@
                                 document.msFullscreenElement;
             
             if (!isFullScreen && fullScreenActivated) {
-                // Si salió de full screen, regresar
                 setTimeout(() => {
                     window.history.back();
                 }, 100);
@@ -126,18 +218,7 @@
         
         // Cuando el video termina, regresar
         video.addEventListener('ended', function() {
-            const isFullScreen = document.fullscreenElement || 
-                                document.webkitFullscreenElement || 
-                                document.msFullscreenElement;
-            
-            if (isFullScreen) {
-                salirFullScreen();
-                setTimeout(() => {
-                    window.history.back();
-                }, 300);
-            } else {
-                window.history.back();
-            }
+            volverAtras();
         });
         
         // Si el usuario presiona ESC, regresar
@@ -151,7 +232,7 @@
             }
         });
         
-        // Opcional: Si el usuario hace clic en cualquier parte del video, activar sonido si está muteado
+        // Activar sonido si el usuario hace clic en el video
         video.addEventListener('click', function() {
             if (video.muted) {
                 video.muted = false;
@@ -159,7 +240,9 @@
                 video.play();
             }
         });
-    });
+        
+        console.log("Video_Danza: Sistema de voz listo - Comandos: Volver/Atrás/Regresar para salir");
+    })();
 </script>
 
 <style>

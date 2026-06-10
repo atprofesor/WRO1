@@ -78,56 +78,163 @@
 </section>
 
 <div class="page-actions-dashboard">
-    <a class="button secondary" href="{% url 'home' %}">Volver</a>
-    <a class="button primary" href="{% url 'dance_stage' dance.slug 'fotos' %}">Siguiente</a>
+    <a id="btn-volver" class="button secondary" href="{% url 'home' %}">Volver</a>
+    <a id="btn-siguiente" class="button primary" href="{% url 'dance_stage' dance.slug 'fotos' %}">Siguiente</a>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    (function() {
+        'use strict';
+        
+        // Configuración de audio
         const audio = document.getElementById("tts-audio-player");
         const btn = document.getElementById("audio-control-btn");
         
-        if (!audio) return;
-
-        function playAudio() {
-            audio.play().then(function() {
-                if (btn) {
+        // Configurar audio si existe
+        if (audio && btn) {
+            function playAudio() {
+                audio.play().then(function() {
                     btn.classList.add("playing");
                     btn.innerText = "⏸ Pausar Guía";
-                }
-            }).catch(function(error) {
-                if (btn) {
+                }).catch(function(error) {
                     btn.innerText = "🔊 Escuchar Guía";
-                }
-            });
-        }
-
-        playAudio();
-
-        document.body.addEventListener("click", function() {
-            if (audio.paused && btn && !btn.classList.contains("user-paused")) {
-                playAudio();
+                });
             }
-        }, { once: true });
-    });
 
-    function toggleAudio() {
-        const audio = document.getElementById("tts-audio-player");
-        const btn = document.getElementById("audio-control-btn");
-        
-        if (!audio || !btn) return;
-
-        if (audio.paused) {
-            audio.play();
-            btn.classList.add("playing");
-            btn.classList.remove("user-paused");
-            btn.innerText = "⏸ Pausar Guía";
-        } else {
-            audio.pause();
-            btn.classList.add("user-paused");
-            btn.classList.remove("playing");
-            btn.innerText = "🔊 Escuchar Guía";
+            // Intentar reproducción con interacción del usuario
+            document.body.addEventListener("click", function() {
+                if (audio.paused && btn && !btn.classList.contains("user-paused")) {
+                    playAudio();
+                }
+            }, { once: true });
         }
-    }
+        
+        // Función global para control de audio
+        window.toggleAudio = function() {
+            if (!audio || !btn) return;
+
+            if (audio.paused) {
+                audio.play();
+                btn.classList.add("playing");
+                btn.classList.remove("user-paused");
+                btn.innerText = "⏸ Pausar Guía";
+            } else {
+                audio.pause();
+                btn.classList.add("user-paused");
+                btn.classList.remove("playing");
+                btn.innerText = "🔊 Escuchar Guía";
+            }
+        };
+        
+        // ============================================
+        // SISTEMA DE VOZ MEJORADO PARA PRINCIPAL_DANZA
+        // ============================================
+        
+        // Obtener referencias a los botones
+        const btnVolver = document.getElementById('btn-volver');
+        const btnSiguiente = document.getElementById('btn-siguiente');
+        
+        // Variable para controlar si ya configuramos el interceptor
+        if (window.principalVoiceInterceptorActive) {
+            return;
+        }
+        
+        window.principalVoiceInterceptorActive = true;
+        
+        // Función para mostrar feedback en el status
+        function showVoiceFeedback(message, isError = false, isTemp = false) {
+            const statusDiv = document.getElementById('voice-status');
+            if (statusDiv) {
+                const originalText = statusDiv.textContent;
+                statusDiv.textContent = message;
+                if (isError) {
+                    statusDiv.style.backgroundColor = '#f44336';
+                } else {
+                    statusDiv.style.backgroundColor = '#ff9800';
+                }
+                
+                if (isTemp) {
+                    setTimeout(() => {
+                        if (statusDiv && statusDiv.textContent === message) {
+                            statusDiv.textContent = originalText;
+                            statusDiv.style.backgroundColor = '';
+                        }
+                    }, 2000);
+                }
+            }
+        }
+        
+        // Procesar comandos de voz para principal_danza
+        window.processPrincipalCommand = function(command) {
+            console.log("Principal_Danza procesando comando:", command);
+            
+            // Comandos para VOLVER/ATRÁS (incluyendo variantes)
+            if (command.includes('volver') || command.includes('atrás') || command.includes('regresar')) {
+                showVoiceFeedback('🎤 Comando "Volver/Regresar" detectado', false, true);
+                if (btnVolver) {
+                    btnVolver.style.transform = 'scale(0.95)';
+                    setTimeout(() => { if(btnVolver) btnVolver.style.transform = ''; }, 200);
+                    setTimeout(() => { btnVolver.click(); }, 100);
+                }
+                return true;
+            }
+            // Comandos para SIGUIENTE/ADELANTE (incluyendo variantes)
+            else if (command.includes('siguiente') || command.includes('adelante') || command.includes('continuar')) {
+                showVoiceFeedback('🎤 Comando "Siguiente/Avanzar" detectado', false, true);
+                if (btnSiguiente) {
+                    btnSiguiente.style.transform = 'scale(0.95)';
+                    setTimeout(() => { if(btnSiguiente) btnSiguiente.style.transform = ''; }, 200);
+                    setTimeout(() => { btnSiguiente.click(); }, 100);
+                }
+                return true;
+            }
+            return false;
+        };
+        
+        // Interceptar el sistema de voz global
+        if (typeof window.parseCommand === 'function') {
+            const originalParseCommandFn = window.parseCommand;
+            window.parseCommand = function(text) {
+                // Primero intentar procesar en principal_danza
+                if (window.processPrincipalCommand && window.processPrincipalCommand(text)) {
+                    return null;
+                }
+                // Si no, usar la original
+                return originalParseCommandFn(text);
+            };
+            console.log("Principal_Danza: Interceptor de comandos de voz activado");
+        } else {
+            // Esperar a que cargue voice.js
+            const checkVoiceJs = setInterval(() => {
+                if (typeof window.parseCommand === 'function') {
+                    clearInterval(checkVoiceJs);
+                    const originalParseCommandFn = window.parseCommand;
+                    window.parseCommand = function(text) {
+                        if (window.processPrincipalCommand && window.processPrincipalCommand(text)) {
+                            return null;
+                        }
+                        return originalParseCommandFn(text);
+                    };
+                    console.log("Principal_Danza: Interceptor de comandos de voz activado (tardío)");
+                }
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(checkVoiceJs);
+            }, 5000);
+        }
+        
+        // Feedback visual
+        const statusDiv = document.getElementById('voice-status');
+        if (statusDiv) {
+            setTimeout(() => {
+                if (statusDiv && !statusDiv.textContent.includes('(Volver/Siguiente)')) {
+                    statusDiv.textContent = statusDiv.textContent + ' (Di "Volver" o "Siguiente")';
+                }
+            }, 1000);
+        }
+        
+        console.log("Principal_Danza: Sistema de voz listo - Comandos: Volver/Atrás/Regresar, Siguiente/Adelante/Continuar");
+    })();
 </script>
 {% endblock %}
