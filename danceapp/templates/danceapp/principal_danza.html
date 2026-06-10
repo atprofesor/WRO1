@@ -86,48 +86,60 @@
     (function() {
         'use strict';
         
-        // Configuración de audio
+        // ============================================
+        // CONFIGURACIÓN DE AUDIO
+        // ============================================
+        
         const audio = document.getElementById("tts-audio-player");
         const btn = document.getElementById("audio-control-btn");
         
-        // Configurar audio si existe
-        if (audio && btn) {
-            function playAudio() {
-                audio.play().then(function() {
+        // Función para reproducir audio
+        function playAudio() {
+            if (!audio) return;
+            
+            audio.play().then(function() {
+                if (btn) {
                     btn.classList.add("playing");
                     btn.innerText = "⏸ Pausar Guía";
-                }).catch(function(error) {
-                    btn.innerText = "🔊 Escuchar Guía";
-                });
-            }
-
-            // Intentar reproducción con interacción del usuario
-            document.body.addEventListener("click", function() {
-                if (audio.paused && btn && !btn.classList.contains("user-paused")) {
-                    playAudio();
                 }
-            }, { once: true });
+                showVoiceFeedback('🔊 Reproduciendo audio guía', false, true);
+            }).catch(function(error) {
+                console.log("Error al reproducir audio:", error);
+                if (btn) {
+                    btn.innerText = "🔊 Escuchar Guía";
+                }
+                showVoiceFeedback('⚠️ Haz clic en la página para activar el audio', true, true);
+            });
         }
         
-        // Función global para control de audio
-        window.toggleAudio = function() {
-            if (!audio || !btn) return;
-
-            if (audio.paused) {
-                audio.play();
-                btn.classList.add("playing");
-                btn.classList.remove("user-paused");
-                btn.innerText = "⏸ Pausar Guía";
-            } else {
-                audio.pause();
+        // Función para pausar audio
+        function pauseAudio() {
+            if (!audio) return;
+            audio.pause();
+            if (btn) {
                 btn.classList.add("user-paused");
                 btn.classList.remove("playing");
                 btn.innerText = "🔊 Escuchar Guía";
             }
+            showVoiceFeedback('⏸ Audio pausado', false, true);
+        }
+        
+        // Función global para toggle (usada por el botón)
+        window.toggleAudio = function() {
+            if (!audio || !btn) return;
+
+            if (audio.paused) {
+                playAudio();
+                if (btn) {
+                    btn.classList.remove("user-paused");
+                }
+            } else {
+                pauseAudio();
+            }
         };
         
         // ============================================
-        // SISTEMA DE VOZ MEJORADO PARA PRINCIPAL_DANZA
+        // SISTEMA DE VOZ MEJORADO CON COMANDO DE AUDIO
         // ============================================
         
         // Obtener referencias a los botones
@@ -168,9 +180,54 @@
         window.processPrincipalCommand = function(command) {
             console.log("Principal_Danza procesando comando:", command);
             
-            // Comandos para VOLVER/ATRÁS (incluyendo variantes)
+            // ========================================
+            // NUEVO: COMANDOS PARA CONTROL DE AUDIO
+            // ========================================
+            
+            // Comandos para REPRODUCIR AUDIO
+            if (command.includes('audio') || 
+                command.includes('escuchar') || 
+                command.includes('guía') || 
+                command.includes('reproducir') ||
+                command.includes('sonido') ||
+                command.includes('iniciar audio') ||
+                command.includes('enciende el audio') ||
+                command.includes('prender audio')) {
+                
+                if (audio && audio.paused) {
+                    showVoiceFeedback('🎤 Comando "Audio" detectado - Reproduciendo guía', false, true);
+                    playAudio();
+                } else if (audio && !audio.paused) {
+                    showVoiceFeedback('🎤 El audio ya se está reproduciendo', false, true);
+                } else {
+                    showVoiceFeedback('🎤 Audio no disponible en esta danza', true, true);
+                }
+                return true;
+            }
+            
+            // Comandos para PAUSAR AUDIO (opcional, buena práctica)
+            if (command.includes('pausar') || 
+                command.includes('detener') || 
+                command.includes('silenciar') ||
+                command.includes('para el audio') ||
+                command.includes('callar')) {
+                
+                if (audio && !audio.paused) {
+                    showVoiceFeedback('🎤 Comando "Pausar" detectado - Deteniendo audio', false, true);
+                    pauseAudio();
+                } else if (audio && audio.paused) {
+                    showVoiceFeedback('🎤 El audio ya está pausado', false, true);
+                }
+                return true;
+            }
+            
+            // ========================================
+            // COMANDOS DE NAVEGACIÓN EXISTENTES
+            // ========================================
+            
+            // Comandos para VOLVER/ATRÁS
             if (command.includes('volver') || command.includes('atrás') || command.includes('regresar')) {
-                showVoiceFeedback('🎤 Comando "Volver/Regresar" detectado', false, true);
+                showVoiceFeedback('🎤 Comando "Volver" detectado', false, true);
                 if (btnVolver) {
                     btnVolver.style.transform = 'scale(0.95)';
                     setTimeout(() => { if(btnVolver) btnVolver.style.transform = ''; }, 200);
@@ -178,9 +235,10 @@
                 }
                 return true;
             }
-            // Comandos para SIGUIENTE/ADELANTE (incluyendo variantes)
-            else if (command.includes('siguiente') || command.includes('adelante') || command.includes('continuar')) {
-                showVoiceFeedback('🎤 Comando "Siguiente/Avanzar" detectado', false, true);
+            
+            // Comandos para SIGUIENTE/ADELANTE
+            if (command.includes('siguiente') || command.includes('adelante') || command.includes('continuar')) {
+                showVoiceFeedback('🎤 Comando "Siguiente" detectado', false, true);
                 if (btnSiguiente) {
                     btnSiguiente.style.transform = 'scale(0.95)';
                     setTimeout(() => { if(btnSiguiente) btnSiguiente.style.transform = ''; }, 200);
@@ -188,6 +246,7 @@
                 }
                 return true;
             }
+            
             return false;
         };
         
@@ -224,17 +283,28 @@
             }, 5000);
         }
         
-        // Feedback visual
+        // ============================================
+        // INICIALIZACIÓN CON INTERACCIÓN DEL USUARIO
+        // ============================================
+        
+        // Ya NO reproducimos audio automáticamente
+        // Solo mostramos mensaje de que el audio está listo
+        
         const statusDiv = document.getElementById('voice-status');
         if (statusDiv) {
             setTimeout(() => {
-                if (statusDiv && !statusDiv.textContent.includes('(Volver/Siguiente)')) {
-                    statusDiv.textContent = statusDiv.textContent + ' (Di "Volver" o "Siguiente")';
+                if (statusDiv && !statusDiv.textContent.includes('(Volver/Siguiente/Audio)')) {
+                    statusDiv.textContent = statusDiv.textContent + ' (Di "Volver", "Siguiente" o "Audio")';
                 }
             }, 1000);
         }
         
-        console.log("Principal_Danza: Sistema de voz listo - Comandos: Volver/Atrás/Regresar, Siguiente/Adelante/Continuar");
+        // Opcional: Mostrar un mensaje amigable sobre el audio
+        if (audio && btn) {
+            console.log("Principal_Danza: Audio listo. Di 'audio' o 'escuchar' para reproducir la guía");
+        }
+        
+        console.log("Principal_Danza: Sistema de voz listo - Comandos: Volver/Atrás/Regresar, Siguiente/Adelante/Continuar, Audio/Escuchar/Guía");
     })();
 </script>
 {% endblock %}
