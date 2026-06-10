@@ -121,10 +121,10 @@ C 463.722635 99.320082 466.878107 96.54523 468.242966 92.675321
 C 469.607825 88.805412 469.070637 84.156409 466.74971 79.752199 
 C 464.428784 75.347989 460.513613 71.548158 455.866468 69.189573 
 C 451.219323 66.830989 446.219623 66.106219 441.968494 67.174887 
-C 437.717365 68.243554 434.561893 71.018407 433.197034 74.888315 
-C 431.832175 78.758224 432.369363 83.407228 434.69029 87.811437 
-C 437.011216 92.215647 440.926387 96.015479 445.573532 98.374063 
-C 450.220677 100.732648 455.220377 101.457417 459.471506 100.38875 
+Q 437.717365 68.243554 433.197034 74.888315 
+Q 431.832175 78.758224 432.369363 83.407228 
+Q 437.011216 92.215647 440.926387 96.015479 445.573532 98.374063 
+Q 450.220677 100.732648 455.220377 101.457417 459.471506 100.38875 
 z
 " clip-path="url(#pfbb5e5b496)" style="fill: #d97736; stroke: #d97736; stroke-linejoin: miter"/>
    </g>
@@ -155,8 +155,7 @@ L 194.843077 54.327273
 " clip-path="url(#pfbb5e5b496)" style="fill: none; stroke: #1e293b; stroke-width: 8; stroke-linecap: round"/>
    </g>
    <g id="text_1">
-    <!-- Arpa Llanera -->
-    <g style="fill: #1e293b" transform="translate(90.515481 191.52571) scale(0.1 -0.1)">
+    <g style="fill: #1e293b" transform="translate(54.315481 191.52571) scale(0.2 -0.2)">
      <defs>
       <path id="DejaVuSans-Bold-41" d="M 3419 850 
 L 1538 850 
@@ -351,8 +350,7 @@ z
 " clip-path="url(#pfbb5e5b496)" style="fill: #d97736; stroke: #d97736; stroke-linejoin: miter"/>
    </g>
    <g id="text_2">
-    <!-- Cuatro -->
-    <g style="fill: #1e293b" transform="translate(286.829327 191.52571) scale(0.1 -0.1)">
+    <g style="fill: #1e293b" transform="translate(267.829327 191.52571) scale(0.2 -0.2)">
      <defs>
       <path id="DejaVuSans-Bold-43" d="M 4288 256 
 Q 3956 84 3597 -3 
@@ -476,8 +474,7 @@ z
 " clip-path="url(#pfbb5e5b496)" style="fill: #ffffff; stroke: #ffffff; stroke-linejoin: miter"/>
    </g>
    <g id="text_3">
-    <!-- Maracas -->
-    <g style="fill: #1e293b" transform="translate(444.274555 191.52571) scale(0.1 -0.1)">
+    <g style="fill: #1e293b" transform="translate(420.274555 191.52571) scale(0.2 -0.2)">
      <defs>
       <path id="DejaVuSans-Bold-4d" d="M 588 4666 
 L 2119 4666 

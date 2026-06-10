@@ -522,3 +522,65 @@ body {
         box-shadow: 0 0 0 0 rgba(217, 119, 54, 0);
     }
 }
+
+/* ==========================================================================
+   AJUSTES MANUALES DE TAMAÑO (PASO POR PASO)
+   ========================================================================== */
+
+/* PASO 1: Multiplicar por 1.5 el subtítulo del template Base */
+.site-header .header-content p {
+    font-size: 1.5em !important; /* Multiplica el tamaño base actual por 1.5 */
+}
+
+/* PASO 2: Multiplicar por 1.2 el título del mapa en el template Home */
+.hero-image .map-title {
+    font-size: 1.5em !important; /* Multiplica el tamaño base actual por 1.2 */
+}
+
+/* PASO 3: Multiplicar por 1.5 la frase de ayuda por voz en el template Home */
+.dance-list-compact .voice-hint-compact {
+    font-size: 1.2em !important; /* Multiplica el tamaño actual de la frase por 1.5 */
+}
+
+/* PASO 4: Multiplicar por 1.5 los datos del equipo (pie de página) en el template Home */
+.team-presentation-compact p {
+    font-size: 1.1em !important; /* Incrementa el tamaño de todo el bloque de créditos por 1.5 */
+}
+
+/* PASO 5: Autoajuste inteligente y responsivo para los créditos del equipo */
+.team-presentation-compact {
+    display: flex !important;
+    flex-wrap: wrap !important; /* Permite que los bloques bajen limpiamente si no hay espacio */
+    justify-content: center !important; /* Centra los elementos en pantallas grandes y medianas */
+    gap: 10px 40px !important; /* Espaciado de separación (10px arriba/abajo, 40px a los lados) */
+    width: 100% !important;
+    text-align: center !important;
+    padding: 15px 0 !important;
+}
+
+.team-presentation-compact p {
+    margin: 0 !important;
+    display: inline-block !important;
+    white-space: nowrap !important; /* Evita que un mismo dato (ej. el nombre de un alumno) se corte por la mitad */
+}
+
+/* ==========================================
+   MEDIOS DE AJUSTE PARA MONITORES PEQUEÑOS
+   ========================================== */
+@media (max-width: 1024px) {
+    /* En monitores medianos o laptops chicas, bajamos el multiplicador a 1.2em para que siga entrando en una fila */
+    .team-presentation-compact p {
+        font-size: 1.2em !important; 
+    }
+}
+
+@media (max-width: 768px) {
+    /* En pantallas de tablets o muy pequeñas, los ordenamos en una columna vertical impecable */
+    .team-presentation-compact {
+        flex-direction: column !important;
+        gap: 6px !important;
+    }
+    .team-presentation-compact p {
+        font-size: 1.1em !important;
+    }
+}
