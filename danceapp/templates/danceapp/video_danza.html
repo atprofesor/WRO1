@@ -1,21 +1,264 @@
 {% extends 'danceapp/base.html' %}
+{% load static %}
+
+{% block title %}Video Danza - Joropo{% endblock %}
 
 {% block content %}
-<section class="dance-stage video-section">
-    <h2>Video de {{ dance.name }}</h2>
-    <div class="video-wrapper">
-        <iframe
-            src="{{ dance.video_url }}"
-            title="Video de {{ dance.name }}"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen>
-        </iframe>
-    </div>
-</section>
-
-<div class="page-actions">
-    <a class="button secondary" href="{% url 'dance_stage' dance.slug 'fotos' %}">Volver</a>
-    <a class="button primary" href="{% url 'home' %}">Finalizar</a>
+<div id="video-container">
+    <video id="joropo-video" width="100%" height="100%" autoplay playsinline>
+        <source src="{% static 'danceapp/videos/video_joropo.mp4' %}" type="video/mp4">
+        Tu navegador no soporta la reproducción de videos.
+    </video>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('joropo-video');
+        let fullScreenActivated = false;
+        
+        // Función para entrar en full screen
+        function entrarFullScreen(elemento) {
+            if (!fullScreenActivated) {
+                fullScreenActivated = true;
+                if (elemento.requestFullscreen) {
+                    elemento.requestFullscreen();
+                } else if (elemento.webkitRequestFullscreen) {
+                    elemento.webkitRequestFullscreen();
+                } else if (elemento.msRequestFullscreen) {
+                    elemento.msRequestFullscreen();
+                }
+            }
+        }
+        
+        // Función para salir de full screen
+        function salirFullScreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+        
+        // Intentar reproducir el video con sonido
+        // Los navegadores modernos requieren interacción del usuario para autoplay con sonido
+        
+        // Mostrar un mensaje inicial para que el usuario interactúe
+        function mostrarBienvenida() {
+            const container = document.getElementById('video-container');
+            
+            // Verificar si ya existe un overlay
+            if (document.getElementById('video-overlay')) return;
+            
+            const overlay = document.createElement('div');
+            overlay.id = 'video-overlay';
+            overlay.innerHTML = `
+                <div class="overlay-content">
+                    <h2>🎭 Joropo - Danza Tradicional</h2>
+                    <p>Haz clic en el botón para disfrutar del video con sonido</p>
+                    <p style="font-size: 0.9em; margin-top: 10px;">🎵 La experiencia incluye audio tradicional</p>
+                    <button id="play-fullscreen-btn">🎬 Iniciar con Sonido</button>
+                </div>
+            `;
+            container.appendChild(overlay);
+            
+            const btn = document.getElementById('play-fullscreen-btn');
+            btn.addEventListener('click', function() {
+                // Reproducir el video con sonido
+                video.muted = false; // Asegurar que no está silenciado
+                video.volume = 1.0;  // Volumen al máximo
+                
+                const playPromise = video.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('Video reproduciéndose con sonido');
+                        entrarFullScreen(video);
+                        overlay.remove();
+                    }).catch(error => {
+                        console.log('Error al reproducir:', error);
+                        alert('Haz clic en el video para activar el sonido');
+                        overlay.remove();
+                    });
+                }
+            });
+        }
+        
+        // Verificar si el autoplay con sonido es posible
+        // Intentar reproducir automáticamente (muchos navegadores lo bloquearán)
+        video.muted = false;
+        video.volume = 1.0;
+        
+        const playPromise = video.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                console.log('Autoplay con sonido exitoso');
+                // Entrar en full screen después de que empiece
+                setTimeout(() => {
+                    entrarFullScreen(video);
+                }, 100);
+            }).catch(error => {
+                console.log('Autoplay con sonido bloqueado, mostrando botón de inicio');
+                // El navegador bloqueó el autoplay con sonido
+                mostrarBienvenida();
+            });
+        }
+        
+        // Manejar salida de full screen
+        function handleFullScreenChange() {
+            const isFullScreen = document.fullscreenElement || 
+                                document.webkitFullscreenElement || 
+                                document.msFullscreenElement;
+            
+            if (!isFullScreen && fullScreenActivated) {
+                // Si salió de full screen, regresar
+                setTimeout(() => {
+                    window.history.back();
+                }, 100);
+            }
+        }
+        
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
+        document.addEventListener('msfullscreenchange', handleFullScreenChange);
+        
+        // Cuando el video termina, regresar
+        video.addEventListener('ended', function() {
+            const isFullScreen = document.fullscreenElement || 
+                                document.webkitFullscreenElement || 
+                                document.msFullscreenElement;
+            
+            if (isFullScreen) {
+                salirFullScreen();
+                setTimeout(() => {
+                    window.history.back();
+                }, 300);
+            } else {
+                window.history.back();
+            }
+        });
+        
+        // Si el usuario presiona ESC, regresar
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                setTimeout(() => {
+                    if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                        window.history.back();
+                    }
+                }, 100);
+            }
+        });
+        
+        // Opcional: Si el usuario hace clic en cualquier parte del video, activar sonido si está muteado
+        video.addEventListener('click', function() {
+            if (video.muted) {
+                video.muted = false;
+                video.volume = 1.0;
+                video.play();
+            }
+        });
+    });
+</script>
+
+<style>
+    /* Estilos específicos para la página de video */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        overflow: hidden;
+        background-color: #000;
+        margin: 0;
+        padding: 0;
+    }
+    
+    #video-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        z-index: 9999;
+    }
+    
+    #joropo-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background-color: #000;
+    }
+    
+    #video-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        backdrop-filter: blur(5px);
+    }
+    
+    .overlay-content {
+        text-align: center;
+        color: white;
+        font-family: Arial, sans-serif;
+        padding: 30px;
+        background: rgba(0,0,0,0.8);
+        border-radius: 15px;
+        border: 2px solid #ff6b35;
+        max-width: 80%;
+    }
+    
+    .overlay-content h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        color: #ff6b35;
+    }
+    
+    .overlay-content p {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+    
+    #play-fullscreen-btn {
+        padding: 15px 40px;
+        font-size: 1.3rem;
+        background-color: #ff6b35;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: transform 0.2s, background-color 0.2s;
+        margin-top: 10px;
+    }
+    
+    #play-fullscreen-btn:hover {
+        background-color: #ff5722;
+        transform: scale(1.05);
+    }
+    
+    /* Ocultar header y footer en esta página */
+    .site-header,
+    .site-footer {
+        display: none !important;
+    }
+    
+    .page-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+</style>
 {% endblock %}
